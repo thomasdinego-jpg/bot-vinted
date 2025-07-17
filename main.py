@@ -23,7 +23,7 @@ def keep_alive():
 
 BRANDS = ['lacoste', 'ralph-lauren', 'ami-paris', 'comme-des-garcons', 'nike', 'dickies']
 ITEM_TYPES = ['t-shirt', 'short', 'pull', 'sweat-shirt', 'gilet', 'jean', 'jogging']
-SIZES = ['M', 'L', 'XL']
+SIZES = ['XS', 'M', 'L', 'XL']
 PRICE_MAX = {
     # T-shirts
     ("ralph lauren", "t-shirt"): 12,
