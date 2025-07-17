@@ -43,8 +43,8 @@ PRICE_MAX = {
     ("lacoste", "short"): 15,
 
     # Jogging
-    ("nike", "jogging"): 8,
-
+    ("nike", "jogging"): 8
+}
 
 def price_limit(marque, item_type):
     return PRICE_MAX.get((marque, item_type), 20)
