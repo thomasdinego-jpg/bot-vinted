@@ -109,7 +109,7 @@ if __name__ == "__main__":
     while True:
         try:
             check_vinted()
-            time.sleep(300)
+            time.sleep(480)
         except Exception as e:
             print("Erreur:", e)
-            time.sleep(300)
+            time.sleep(480)
