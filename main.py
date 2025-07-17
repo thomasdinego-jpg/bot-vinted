@@ -25,14 +25,27 @@ BRANDS = ['lacoste', 'ralph-lauren', 'ami-paris', 'comme-des-garcons', 'nike', '
 ITEM_TYPES = ['t-shirt', 'short', 'pull', 'sweat-shirt', 'gilet', 'jean', 'jogging']
 SIZES = ['M', 'L', 'XL']
 
-PRICE_MAX = {
-    ('lacoste', 't-shirt'): 12,
-    ('ralph-lauren', 't-shirt'): 12,
-    ('ralph-lauren', 'pull'): 15,
-    ('nike', 'pull'): 8,
-    ('lacoste', 'short'): 12,
-    ('ralph-lauren', 'short'): 12,
-}
+    PRICE_MAX = {
+    # T-shirts
+    ("ralph lauren", "t-shirt"): 12,
+    ("lacoste", "t-shirt"): 12,
+    ("ami paris", "t-shirt"): 15,
+    ("comme des garçons", "t-shirt"): 15,
+
+    # Pulls
+    ("ralph lauren", "pull"): 20,
+    ("lacoste", "pull"): 20,
+    ("nike", "pull"): 10,
+    ("ami paris", "pull"): 25,
+    ("comme des garçons", "pull"): 25,
+
+    # Shorts
+    ("ralph lauren", "short"): 15,
+    ("lacoste", "short"): 15,
+
+    # Jogging
+    ("nike", "jogging"): 8,
+
 
 def price_limit(marque, item_type):
     return PRICE_MAX.get((marque, item_type), 20)
