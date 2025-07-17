@@ -34,7 +34,7 @@ PRICE_MAX = {
     # Pulls
     ("ralph lauren", "pull"): 20,
     ("lacoste", "pull"): 20,
-    ("nike", "pull"): 10,
+    ("nike", "pull"): 12,
     ("ami paris", "pull"): 25,
     ("comme des garçons", "pull"): 25,
 
@@ -47,7 +47,7 @@ PRICE_MAX = {
 }
 
 def price_limit(marque, item_type):
-    return PRICE_MAX.get((marque, item_type), 20)
+    return PRICE_MAX.get((marque, item_type), 100)
 
 def scrape_vinted():
     found_items = []
