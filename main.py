@@ -15,6 +15,7 @@ VINTED_BASE = "https://www.vinted.fr"
 BRANDS = ["Lacoste", "Ralph Lauren", "Nike"]
 ITEM_TYPES = ["t-shirts", "pulls", "sweat-shirts"]
 SIZES = ["M", "L", "XL"]
+ALLOWED_CONDITIONS = ["neuf avec étiquette", "neuf sans étiquette", "très bon état"]
 
 PRICE_LIMITS = {
     ("Lacoste", "t-shirts"): 12,
@@ -24,7 +25,6 @@ PRICE_LIMITS = {
     "default": 20
 }
 
-ALLOWED_CONDITIONS = ["neuf avec étiquette", "neuf sans étiquette", "très bon état"]
 sent_links = set()
 
 def get_price_limit(brand, item_type):
@@ -34,7 +34,7 @@ def send_telegram_message(text):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     data = {"chat_id": CHAT_ID, "text": text}
     try:
-        requests.post(url, data=data)
+        requests.post(url, data=data, timeout=5)
     except Exception as e:
         print("❌ Erreur envoi Telegram :", e)
 
@@ -45,7 +45,7 @@ def scrape_vinted():
         for item_type in ITEM_TYPES:
             url = f"{VINTED_BASE}/catalog?search_text={brand}+{item_type}&order=newest_first"
             try:
-                r = requests.get(url)
+                r = requests.get(url, timeout=5)
                 soup = BeautifulSoup(r.text, 'html.parser')
                 items = soup.select('div.catalog-items > div')
                 print(f"📦 {len(items)} annonces pour {brand} - {item_type}")
@@ -65,17 +65,15 @@ def scrape_vinted():
                         size_tag = item.find('span', class_='item-box__size')
                         size = size_tag.text.strip() if size_tag else ''
 
-                        # ✅ Filtrage par état
+                        # ✅ Récupération de l'état
                         condition_tag = item.find('span', class_='item-box__condition')
                         condition = condition_tag.text.strip().lower() if condition_tag else ''
                         if condition not in ALLOWED_CONDITIONS:
                             continue
 
-                        marque = brand
-
                         print("🟢 Annonce trouvée !")
                         print(f"🔗 {link}")
-                        print(f"💶 {price}€ | 📏 {size} | 🏷️ {marque} | 📦 {condition}")
+                        print(f"💶 {price}€ | 📏 {size} | 🏷️ {brand} | 📦 {condition}")
                         print("-" * 40)
 
                         if price > get_price_limit(brand, item_type) or size not in SIZES:
@@ -83,7 +81,7 @@ def scrape_vinted():
 
                         message = (
                             f"🆕 Nouvelle annonce :\n"
-                            f"🏷️ Marque : {marque}\n"
+                            f"🏷️ Marque : {brand}\n"
                             f"👕 Type : {item_type}\n"
                             f"📏 Taille : {size}\n"
                             f"💶 Prix : {price}€\n"
