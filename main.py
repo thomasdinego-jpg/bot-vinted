@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask
@@ -14,16 +15,15 @@ app = Flask('')
 def home():
     return "Bot Vinted actif"
 
-import os
-
 def run():
-    port = int(os.environ.get("PORT", 8080))  # Prend le port depuis l’environnement, sinon 8080 par défaut
+    port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
 
 def keep_alive():
     t = Thread(target=run)
     t.start()
 
+# Tes filtres
 BRANDS = ['lacoste', 'ralph-lauren', 'ami-paris', 'comme-des-garcons', 'nike', 'dickies']
 ITEM_TYPES = ['t-shirt', 'short', 'pull', 'sweat-shirt', 'gilet', 'jean', 'jogging']
 SIZES = ['XS', 'M', 'L', 'XL']
@@ -75,7 +75,8 @@ def scrape_vinted():
                         'type': item_type_simple,
                         'image': item.find('img')['src'] if item.find('img') else None
                     })
-                except:
+                except Exception as e:
+                    # Ignore errors in parsing items
                     continue
     return found_items
 
@@ -89,26 +90,20 @@ def send_telegram(item):
         "caption": caption,
         "photo": item['image']
     }
-    requests.post(f"https://api.telegram.org/bot{TOKEN}/sendPhoto", data=data)
+    url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
+    requests.post(url, data=data)
 
-# ✅ CORRECT ICI
-sent_links = set()
-
-def check_vinted():
-    items = scrape_vinted()
-    print(f"🔎 Annonces trouvées : {len(items)}")
-    for item in items:
-        print(item)
-        if item['link'] not in sent_links:
-            send_telegram(item)
-            sent_links.add(item['link'])
+def main_loop():
+    already_sent = set()
+    while True:
+        items = scrape_vinted()
+        for item in items:
+            # Evite de renvoyer plusieurs fois la même annonce
+            if item['link'] not in already_sent:
+                send_telegram(item)
+                already_sent.add(item['link'])
+        time.sleep(60)  # Pause 1 minute entre chaque recherche
 
 if __name__ == "__main__":
-    keep_alive()
-    while True:
-        try:
-            check_vinted()
-            time.sleep(480)
-        except Exception as e:
-            print("Erreur:", e)
-            time.sleep(480)
+    keep_alive()  # Démarre Flask dans un thread pour garder l'app web active
+    main_loop()   # Lance la boucle principale du bot
