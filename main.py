@@ -15,15 +15,6 @@ app = Flask('')
 def home():
     return "Bot Vinted actif"
 
-def run():
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-
-# Tes filtres
 BRANDS = ['lacoste', 'ralph-lauren', 'ami-paris', 'comme-des-garcons', 'nike', 'dickies']
 ITEM_TYPES = ['t-shirt', 'short', 'pull', 'sweat-shirt', 'gilet', 'jean', 'jogging']
 SIZES = ['XS', 'M', 'L', 'XL']
@@ -75,8 +66,7 @@ def scrape_vinted():
                         'type': item_type_simple,
                         'image': item.find('img')['src'] if item.find('img') else None
                     })
-                except Exception as e:
-                    # Ignore errors in parsing items
+                except Exception:
                     continue
     return found_items
 
@@ -98,12 +88,17 @@ def main_loop():
     while True:
         items = scrape_vinted()
         for item in items:
-            # Evite de renvoyer plusieurs fois la même annonce
             if item['link'] not in already_sent:
                 send_telegram(item)
                 already_sent.add(item['link'])
-        time.sleep(60)  # Pause 1 minute entre chaque recherche
+        time.sleep(60)
 
 if __name__ == "__main__":
-    keep_alive()  # Démarre Flask dans un thread pour garder l'app web active
-    main_loop()   # Lance la boucle principale du bot
+    # Lance la boucle bot dans un thread
+    bot_thread = Thread(target=main_loop)
+    bot_thread.daemon = True
+    bot_thread.start()
+    
+    # Lance Flask (serveur web) dans le thread principal
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
