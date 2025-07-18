@@ -4,8 +4,8 @@ from flask import Flask
 from threading import Thread
 import time
 
-TOKEN = 'TON_TOKEN_TELEGRAM_ICI'
-CHAT_ID = 'TON_CHAT_ID_ICI'
+TOKEN = '7630679410:AAHdakqD1fiONDCHMceTD-TATktv4rU0KWE8'
+CHAT_ID = '6774122270'
 VINTED_BASE = "https://www.vinted.fr"
 
 app = Flask('')
