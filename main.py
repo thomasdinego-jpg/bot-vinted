@@ -84,6 +84,7 @@ def send_telegram(item):
     requests.post(url, data=data)
 
 def main_loop():
+    print("✅ Le bot a bien démarré et cherche des annonces...")
     already_sent = set()
     while True:
         items = scrape_vinted()
