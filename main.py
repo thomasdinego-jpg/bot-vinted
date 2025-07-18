@@ -12,16 +12,19 @@ CHAT_ID = os.getenv("CHAT_ID")
 
 # ✅ Configuration du bot
 VINTED_BASE = "https://www.vinted.fr"
-BRANDS = ["Lacoste", "Ralph Lauren", "Nike"]
+BRANDS = ["Lacoste", "Ralph Lauren", "Nike", "Comme des Garçons", "Ami Paris"]
 ITEM_TYPES = ["t-shirts", "pulls", "sweat-shirts"]
 SIZES = ["M", "L", "XL"]
 ALLOWED_CONDITIONS = ["neuf avec étiquette", "neuf sans étiquette", "très bon état"]
 
 PRICE_LIMITS = {
-    ("Lacoste", "t-shirts"): 12,
-    ("Ralph Lauren", "t-shirts"): 12,
-    ("Ralph Lauren", "pulls"): 15,
-    ("Nike", "pulls"): 8,
+    ("Lacoste", "t-shirts"): 15,
+    ("Lacoste", "pulls"): 20,                      # <-- ajouté Lacoste pulls
+    ("Ralph Lauren", "t-shirts"): 15,
+    ("Ralph Lauren", "pulls"): 20,
+    ("Nike", "pulls"): 12,
+    ("Comme des Garçons", "pulls"): 24,            # <-- ajouté Comme des Garçons pulls
+    ("Ami Paris", "pulls"): 24,                    # <-- ajouté Ami Paris pulls
     "default": 20
 }
 
