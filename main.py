@@ -25,7 +25,7 @@ PRICE_LIMITS = {
     ("Nike", "pulls"): 12,
     ("Comme des Garçons", "pulls"): 24,            # <-- ajouté Comme des Garçons pulls
     ("Ami Paris", "pulls"): 24,                    # <-- ajouté Ami Paris pulls
-    "default": 20
+    "default": 25
 }
 
 sent_links = set()
