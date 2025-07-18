@@ -95,12 +95,16 @@ def send_telegram(item):
     }
     requests.post(f"https://api.telegram.org/bot{TOKEN}/sendPhoto", data=data)
 
-sent_links = set()
+sent_links = 
 
 def check_vinted():
     items = scrape_vinted()
+    print(f"🔎 Annonces trouvées : {len(items)}")  # ✅ Affiche le nombre d'annonces trouvées
     for item in items:
+        print(item)  # ✅ Affiche le détail de chaque annonce
         if item['link'] not in sent_links:
+            
+           
             send_telegram(item)
             sent_links.add(item['link'])
 
