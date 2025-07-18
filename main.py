@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 
 # 🔐 Charge les variables d’environnement depuis .env
 load_dotenv()
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+TELEGRAM_TOKEN = os.getenv("7630679410:AAHdakqD1fiONDCHMceTD-TATktv4rU0KWE8")
+CHAT_ID = os.getenv("6774122270")
 
 # 📍 Config de recherche
 VINTED_BASE = "https://www.vinted.fr"
