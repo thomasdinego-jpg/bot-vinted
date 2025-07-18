@@ -45,7 +45,7 @@ def scrape_vinted():
             try:
                 r = requests.get(url)
                 soup = BeautifulSoup(r.text, 'html.parser')
-                items = soup.select('div.feed-grid__item')
+                items = soup.select('div.catalog-items > div')
                 print(f"📦 {len(items)} annonces pour {brand} - {item_type}")
 
                 for item in items:
