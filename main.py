@@ -13,7 +13,7 @@ CHAT_ID = os.getenv("CHAT_ID")
 # ✅ Configuration du bot
 VINTED_BASE = "https://www.vinted.fr"
 BRANDS = ["Lacoste", "Ralph Lauren", "Nike", "Comme des Garçons", "Ami Paris"]
-ITEM_TYPES = ["t-shirts", "pulls", "sweat-shirts", joggings", jeans"]
+ITEM_TYPES = ["t-shirts", "pulls", "sweat-shirts", "joggings", "jeans"]
 SIZES = ["M", "L", "XL"]
 ALLOWED_CONDITIONS = ["neuf avec étiquette", "neuf sans étiquette", "très bon état"]
 
