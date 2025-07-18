@@ -102,7 +102,7 @@ def check_vinted():
     print(f"🔎 Annonces trouvées : {len(items)}")  # ✅ Affiche le nombre d'annonces trouvées
     for item in items:
         print(item)  # ✅ Affiche le détail de chaque annonce
-        if item['link'] not in sent_links:
+        if item['link'] not in sent_links = set()
             
            
             send_telegram(item)
