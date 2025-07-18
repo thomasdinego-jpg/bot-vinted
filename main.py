@@ -62,11 +62,18 @@ def scrape_vinted():
                         price = int(''.join(filter(str.isdigit, price_text)))
                         size_tag = item.find('span', class_='item-box__size')
                         size = size_tag.text.strip() if size_tag else ''
+
+                        # 🟡 ➕ Nouvelle partie : état
+                        condition_tag = item.find('span', class_='item-box__condition')
+                        condition = condition_tag.text.strip().lower() if condition_tag else ''
+                        if condition not in ['neuf avec étiquette', 'neuf sans étiquette', 'très bon état']:
+                            continue
+
                         marque = brand
 
                         print("🟢 Annonce trouvée !")
                         print(f"🔗 {link}")
-                        print(f"💶 {price}€ | 📏 {size} | 🏷️ {marque}")
+                        print(f"💶 {price}€ | 📏 {size} | 🏷️ {marque} | 📦 {condition}")
                         print("-" * 40)
 
                         if price > get_price_limit(brand, item_type) or size not in SIZES:
@@ -78,6 +85,7 @@ def scrape_vinted():
                             f"👕 Type : {item_type}\n"
                             f"📏 Taille : {size}\n"
                             f"💶 Prix : {price}€\n"
+                            f"📦 État : {condition}\n"
                             f"🔗 {link}"
                         )
                         send_telegram_message(message)
