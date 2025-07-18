@@ -24,6 +24,7 @@ PRICE_LIMITS = {
     "default": 20
 }
 
+ALLOWED_CONDITIONS = ["neuf avec étiquette", "neuf sans étiquette", "très bon état"]
 sent_links = set()
 
 def get_price_limit(brand, item_type):
@@ -39,6 +40,7 @@ def send_telegram_message(text):
 
 def scrape_vinted():
     print("🔍 Scraping Vinted...")
+    send_telegram_message("🔁 Scraping Vinted...")
     for brand in BRANDS:
         for item_type in ITEM_TYPES:
             url = f"{VINTED_BASE}/catalog?search_text={brand}+{item_type}&order=newest_first"
@@ -63,10 +65,10 @@ def scrape_vinted():
                         size_tag = item.find('span', class_='item-box__size')
                         size = size_tag.text.strip() if size_tag else ''
 
-                        # 🟡 ➕ Nouvelle partie : état
+                        # ✅ Filtrage par état
                         condition_tag = item.find('span', class_='item-box__condition')
                         condition = condition_tag.text.strip().lower() if condition_tag else ''
-                        if condition not in ['neuf avec étiquette', 'neuf sans étiquette', 'très bon état']:
+                        if condition not in ALLOWED_CONDITIONS:
                             continue
 
                         marque = brand
@@ -98,7 +100,8 @@ def scrape_vinted():
 
 # ✅ Lancement continu avec Flask + boucle
 if __name__ == "__main__":
-    keep_alive()  # Lancer le serveur Flask
+    keep_alive()
+    send_telegram_message("✅ Le bot Vinted est bien lancé et tourne 24/24 🟢")
     while True:
         scrape_vinted()
         time.sleep(480)  # toutes les 8 minutes
