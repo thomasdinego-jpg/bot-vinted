@@ -25,24 +25,17 @@ BRANDS = ['lacoste', 'ralph-lauren', 'ami-paris', 'comme-des-garcons', 'nike', '
 ITEM_TYPES = ['t-shirt', 'short', 'pull', 'sweat-shirt', 'gilet', 'jean', 'jogging']
 SIZES = ['XS', 'M', 'L', 'XL']
 PRICE_MAX = {
-    # T-shirts
     ("ralph lauren", "t-shirt"): 12,
     ("lacoste", "t-shirt"): 12,
     ("ami paris", "t-shirt"): 15,
     ("comme des garçons", "t-shirt"): 15,
-
-    # Pulls
     ("ralph lauren", "pull"): 20,
     ("lacoste", "pull"): 20,
     ("nike", "pull"): 12,
     ("ami paris", "pull"): 25,
     ("comme des garçons", "pull"): 25,
-
-    # Shorts
     ("ralph lauren", "short"): 15,
     ("lacoste", "short"): 15,
-
-    # Jogging
     ("nike", "jogging"): 8
 }
 
@@ -95,17 +88,15 @@ def send_telegram(item):
     }
     requests.post(f"https://api.telegram.org/bot{TOKEN}/sendPhoto", data=data)
 
-sent_links = 
+# ✅ CORRECT ICI
+sent_links = set()
 
 def check_vinted():
     items = scrape_vinted()
-    print(f"🔎 Annonces trouvées : {len(items)}")  # ✅ Affiche le nombre d'annonces trouvées
+    print(f"🔎 Annonces trouvées : {len(items)}")
     for item in items:
-        print(item)  # ✅ Affiche le détail de chaque annonce
-        if item['link'] not in
-         sent_links = set()
-            
-           
+        print(item)
+        if item['link'] not in sent_links:
             send_telegram(item)
             sent_links.add(item['link'])
 
