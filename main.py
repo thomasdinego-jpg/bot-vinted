@@ -52,9 +52,8 @@ def scrape_vinted():
                 r = requests.get(url, timeout=5)
                 soup = BeautifulSoup(r.text, 'html.parser')
 
-                # 🔎 Affiche les 3000 premiers caractères pour vérifier la structure HTML
-                print("🔽 Aperçu HTML reçu :")
-                print(soup.prettify()[:3000])
+                print(soup.prettify()[:2000])  # pour voir le HTML réel
+print("Nombre d'items trouvés :", len(items))
 
                 items = soup.select('div.feed-grid__item')
                 print(f"📦 {len(items)} annonces pour {brand} - {item_type}")
