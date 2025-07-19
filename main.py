@@ -5,18 +5,19 @@ import time
 from dotenv import load_dotenv
 from keep_alive import keep_alive
 
-# ✅ Charge les variables d’environnement
+# ✅ Charge les variables d’environnement depuis le fichier .env
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
-# ✅ Configuration du bot
+# ✅ Configuration des critères
 VINTED_BASE = "https://www.vinted.fr"
 BRANDS = ["Lacoste", "Ralph Lauren", "Nike", "Comme des Garçons", "Ami Paris"]
 ITEM_TYPES = ["t-shirts", "pulls", "sweat-shirts", "joggings", "shorts", "jeans"]
 SIZES = ["M", "L", "XL"]
 ALLOWED_CONDITIONS = ["neuf avec étiquette", "neuf sans étiquette", "très bon état"]
 
+# ✅ Limites de prix personnalisées
 PRICE_LIMITS = {
     ("Lacoste", "t-shirts"): 15,
     ("Lacoste", "pulls"): 20,
@@ -28,7 +29,7 @@ PRICE_LIMITS = {
     "default": 25
 }
 
-sent_links = set()
+sent_links = set()  # Pour éviter d’envoyer 2 fois la même annonce
 
 def get_price_limit(brand, item_type):
     return PRICE_LIMITS.get((brand, item_type), PRICE_LIMITS["default"])
@@ -38,22 +39,28 @@ def send_telegram_message(text):
     data = {"chat_id": CHAT_ID, "text": text}
     try:
         resp = requests.post(url, data=data, timeout=5)
-        print(f"Telegram status: {resp.status_code} - {resp.text}")
+        print(f"📬 Telegram status: {resp.status_code} - {resp.text}")
     except Exception as e:
         print("❌ Erreur envoi Telegram :", e)
 
 def scrape_vinted():
     print("🔍 Scraping Vinted...")
     send_telegram_message("🔁 Scraping Vinted...")
+
     for brand in BRANDS:
         for item_type in ITEM_TYPES:
             url = f"{VINTED_BASE}/catalog?search_text={brand}+{item_type}&order=newest_first"
+            print(f"🔗 URL testée : {url}")
             try:
                 r = requests.get(url, timeout=5)
                 soup = BeautifulSoup(r.text, 'html.parser')
-items = soup.select('div.feed-grid__item')  # d'abord, on récupère les items
-print(soup.prettify()[:2000])  # puis on affiche le HTML
-print("Nombre d'items trouvés :", len(items))  # et enfin le nombre d'annonces
+
+                # ✅ DEBUG HTML pour vérifier la structure des annonces
+                print(soup.prettify()[:2000])
+                
+                # ✅ Sélecteur mis à jour
+                items = soup.select('div.feed-grid__item')
+                print(f"📦 {len(items)} annonces trouvées pour {brand} - {item_type}")
 
                 for item in items:
                     try:
@@ -61,12 +68,14 @@ print("Nombre d'items trouvés :", len(items))  # et enfin le nombre d'annonces
                         if not a_tag:
                             continue
                         link = VINTED_BASE + a_tag['href'].split('?')[0]
-
                         if link in sent_links:
                             continue
 
-                        price_text = item.select_one('div[class*=price]').text.strip()
-                        price = int(''.join(filter(str.isdigit, price_text)))
+                        price_text = item.select_one('div[class*=price]')
+                        price = int(''.join(filter(str.isdigit, price_text.text))) if price_text else None
+                        if price is None:
+                            continue
+
                         size_tag = item.find('span', class_='item-box__size')
                         size = size_tag.text.strip() if size_tag else ''
 
@@ -78,6 +87,7 @@ print("Nombre d'items trouvés :", len(items))  # et enfin le nombre d'annonces
                         if price > get_price_limit(brand, item_type) or size not in SIZES:
                             continue
 
+                        # ✅ Annonce valide
                         print("🟢 Annonce trouvée !")
                         print(f"🔗 {link}")
                         print(f"💶 {price}€ | 📏 {size} | 🏷️ {brand} | 📦 {condition}")
@@ -97,13 +107,14 @@ print("Nombre d'items trouvés :", len(items))  # et enfin le nombre d'annonces
 
                     except Exception as e:
                         print("❌ Erreur traitement annonce :", e)
+
             except Exception as e:
-                print("❌ Erreur requête ou parsing :", e)
+                print("❌ Erreur scraping URL :", e)
 
 if __name__ == "__main__":
     keep_alive()
     send_telegram_message("✅ Le bot Vinted est bien lancé et tourne 24/24 🟢")
-    send_telegram_message("📲 Test manuel d'envoi Telegram, ça fonctionne ?")
+    send_telegram_message("📲 Test manuel d'envoi Telegram")
     while True:
         scrape_vinted()
         time.sleep(480)  # toutes les 8 minutes
