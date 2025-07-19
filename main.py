@@ -5,31 +5,31 @@ import time
 from dotenv import load_dotenv
 from keep_alive import keep_alive
 
-# ✅ Charge les variables d’environnement depuis le fichier .env
+# Charge les variables d’environnement
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
-# ✅ Configuration des critères
 VINTED_BASE = "https://www.vinted.fr"
 BRANDS = ["Lacoste", "Ralph Lauren", "Nike", "Comme des Garçons", "Ami Paris"]
 ITEM_TYPES = ["t-shirts", "pulls", "sweat-shirts", "joggings", "shorts", "jeans"]
-SIZES = ["M", "L", "XL"]
-ALLOWED_CONDITIONS = ["neuf avec étiquette", "neuf sans étiquette", "très bon état"]
 
-# ✅ Limites de prix personnalisées
+# Pour debug, on allège les filtres
+SIZES = []  # vide = accepte toutes les tailles
+ALLOWED_CONDITIONS = []  # vide = accepte tous états
+
 PRICE_LIMITS = {
-    ("Lacoste", "t-shirts"): 15,
-    ("Lacoste", "pulls"): 20,
-    ("Ralph Lauren", "t-shirts"): 15,
-    ("Ralph Lauren", "pulls"): 20,
-    ("Nike", "pulls"): 12,
-    ("Comme des Garçons", "pulls"): 24,
-    ("Ami Paris", "pulls"): 24,
-    "default": 25
+    ("Lacoste", "t-shirts"): 1000,  # prix max très élevé pour debug
+    ("Lacoste", "pulls"): 1000,
+    ("Ralph Lauren", "t-shirts"): 1000,
+    ("Ralph Lauren", "pulls"): 1000,
+    ("Nike", "pulls"): 1000,
+    ("Comme des Garçons", "pulls"): 1000,
+    ("Ami Paris", "pulls"): 1000,
+    "default": 1000
 }
 
-sent_links = set()  # Pour éviter d’envoyer 2 fois la même annonce
+sent_links = set()
 
 def get_price_limit(brand, item_type):
     return PRICE_LIMITS.get((brand, item_type), PRICE_LIMITS["default"])
@@ -52,15 +52,18 @@ def scrape_vinted():
             url = f"{VINTED_BASE}/catalog?search_text={brand}+{item_type}&order=newest_first"
             print(f"🔗 URL testée : {url}")
             try:
-                r = requests.get(url, timeout=5)
+                r = requests.get(url, timeout=10)
                 soup = BeautifulSoup(r.text, 'html.parser')
 
-                # ✅ DEBUG HTML pour vérifier la structure des annonces
-                print(soup.prettify()[:2000])
-                
-                # ✅ Sélecteur mis à jour
+                # DEBUG: afficher un extrait du HTML pour vérifier la structure
+                html_excerpt = soup.prettify()[:1500]
+                print(f"HTML extrait pour {brand} {item_type}:\n{html_excerpt}\n{'='*60}")
+
+                # Sélecteur annonces (à ajuster si Vinted change)
                 items = soup.select('div.feed-grid__item')
                 print(f"📦 {len(items)} annonces trouvées pour {brand} - {item_type}")
+
+                found_valid = False
 
                 for item in items:
                     try:
@@ -68,26 +71,32 @@ def scrape_vinted():
                         if not a_tag:
                             continue
                         link = VINTED_BASE + a_tag['href'].split('?')[0]
+
                         if link in sent_links:
                             continue
 
-                        price_text = item.select_one('div[class*=price]')
-                        price = int(''.join(filter(str.isdigit, price_text.text))) if price_text else None
-                        if price is None:
+                        price_tag = item.select_one('div[class*=price]')
+                        if not price_tag:
+                            continue
+                        price_text = price_tag.text.strip()
+                        price = int(''.join(filter(str.isdigit, price_text)))
+                        
+                        # Si on a des filtres actifs, on applique, sinon on passe
+                        if price > get_price_limit(brand, item_type):
                             continue
 
                         size_tag = item.find('span', class_='item-box__size')
                         size = size_tag.text.strip() if size_tag else ''
+                        if SIZES and size not in SIZES:
+                            continue
 
                         condition_tag = item.find('span', class_='item-box__condition')
                         condition = condition_tag.text.strip().lower() if condition_tag else ''
-                        if condition not in ALLOWED_CONDITIONS:
+                        if ALLOWED_CONDITIONS and condition not in ALLOWED_CONDITIONS:
                             continue
 
-                        if price > get_price_limit(brand, item_type) or size not in SIZES:
-                            continue
-
-                        # ✅ Annonce valide
+                        # Si on arrive ici, annonce valide
+                        found_valid = True
                         print("🟢 Annonce trouvée !")
                         print(f"🔗 {link}")
                         print(f"💶 {price}€ | 📏 {size} | 🏷️ {brand} | 📦 {condition}")
@@ -107,6 +116,9 @@ def scrape_vinted():
 
                     except Exception as e:
                         print("❌ Erreur traitement annonce :", e)
+
+                if not found_valid:
+                    print(f"❌ Aucune annonce valide trouvée pour {brand} - {item_type}")
 
             except Exception as e:
                 print("❌ Erreur scraping URL :", e)
