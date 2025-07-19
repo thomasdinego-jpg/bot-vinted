@@ -19,12 +19,12 @@ ALLOWED_CONDITIONS = ["neuf avec étiquette", "neuf sans étiquette", "très bon
 
 PRICE_LIMITS = {
     ("Lacoste", "t-shirts"): 15,
-    ("Lacoste", "pulls"): 20,                      # <-- ajouté Lacoste pulls
+    ("Lacoste", "pulls"): 20,
     ("Ralph Lauren", "t-shirts"): 15,
     ("Ralph Lauren", "pulls"): 20,
     ("Nike", "pulls"): 12,
-    ("Comme des Garçons", "pulls"): 24,            # <-- ajouté Comme des Garçons pulls
-    ("Ami Paris", "pulls"): 24,                    # <-- ajouté Ami Paris pulls
+    ("Comme des Garçons", "pulls"): 24,
+    ("Ami Paris", "pulls"): 24,
     "default": 25
 }
 
@@ -37,7 +37,8 @@ def send_telegram_message(text):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     data = {"chat_id": CHAT_ID, "text": text}
     try:
-        requests.post(url, data=data, timeout=5)
+        resp = requests.post(url, data=data, timeout=5)
+        print(f"Telegram status: {resp.status_code} - {resp.text}")
     except Exception as e:
         print("❌ Erreur envoi Telegram :", e)
 
@@ -68,7 +69,6 @@ def scrape_vinted():
                         size_tag = item.find('span', class_='item-box__size')
                         size = size_tag.text.strip() if size_tag else ''
 
-                        # ✅ Récupération de l'état
                         condition_tag = item.find('span', class_='item-box__condition')
                         condition = condition_tag.text.strip().lower() if condition_tag else ''
                         if condition not in ALLOWED_CONDITIONS:
@@ -102,6 +102,7 @@ def scrape_vinted():
 if __name__ == "__main__":
     keep_alive()
     send_telegram_message("✅ Le bot Vinted est bien lancé et tourne 24/24 🟢")
+    send_telegram_message("📲 Test manuel d'envoi Telegram, ça fonctionne ?")  # Test envoi
     while True:
         scrape_vinted()
         time.sleep(480)
