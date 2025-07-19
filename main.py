@@ -99,11 +99,3 @@ def scrape_vinted():
             except Exception as e:
                 print("❌ Erreur scraping :", e)
 
-# ✅ Lancement continu avec Flask + boucle
-if __name__ == "__main__":
-    keep_alive()
-    send_telegram_message("✅ Le bot Vinted est bien lancé et tourne 24/24 🟢")
-    while True:
-        scrape_vinted()
-        time.sleep(480)  # toutes les 8 minutes
-                       
