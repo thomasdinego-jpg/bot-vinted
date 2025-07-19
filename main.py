@@ -50,10 +50,9 @@ def scrape_vinted():
             url = f"{VINTED_BASE}/catalog?search_text={brand}+{item_type}&order=newest_first"
             try:
                 r = requests.get(url, timeout=5)
-                soup = BeautifulSoup(r.text, 'html.parser')
-                items = soup.select('div.catalog-items > div')
-                print(f"📦 {len(items)} annonces pour {brand} - {item_type}")
-
+soup = BeautifulSoup(r.text, 'html.parser')
+print(soup.prettify()[:3000])  # Affiche les premiers caractères du HTML reçu
+items = soup.select('div.catalog-items > div')
                 for item in items:
                     try:
                         a_tag = item.find('a', href=True)
