@@ -51,12 +51,9 @@ def scrape_vinted():
             try:
                 r = requests.get(url, timeout=5)
                 soup = BeautifulSoup(r.text, 'html.parser')
-
-                print(soup.prettify()[:2000])  # pour voir le HTML réel
-print("Nombre d'items trouvés :", len(items))
-
-                items = soup.select('div.feed-grid__item')
-                print(f"📦 {len(items)} annonces pour {brand} - {item_type}")
+items = soup.select('div.feed-grid__item')  # d'abord, on récupère les items
+print(soup.prettify()[:2000])  # puis on affiche le HTML
+print("Nombre d'items trouvés :", len(items))  # et enfin le nombre d'annonces
 
                 for item in items:
                     try:
