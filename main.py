@@ -60,17 +60,12 @@ def scrape_vinted():
             try:
                 r = requests.get(url, headers=HEADERS, timeout=10)
 
-                # === Bloc ajouté juste après la requête HTTP pour sauvegarder le HTML ===
-                with open("test_vinted.html", "w", encoding="utf-8") as f:
-                    f.write(r.text)
-                print("✅ HTML sauvegardé dans test_vinted.html")
-                # ========================================================================
+                # Au lieu d'écrire dans un fichier, afficher un extrait du HTML dans les logs
+                print("=== Début du HTML extrait ===")
+                print(r.text[:1500])  # affiche les 1500 premiers caractères du HTML
+                print("=== Fin du HTML extrait ===")
 
                 soup = BeautifulSoup(r.text, 'html.parser')
-
-                # DEBUG: afficher un extrait du HTML pour vérifier la structure
-                html_excerpt = soup.prettify()[:1500]
-                print(f"HTML extrait pour {brand} {item_type}:\n{html_excerpt}\n{'='*60}")
 
                 items = soup.select('div.feed-grid__item')
                 print(f"📦 {len(items)} annonces trouvées pour {brand} - {item_type}")
