@@ -14,8 +14,9 @@ VINTED_BASE = "https://www.vinted.fr"
 BRANDS = ["Lacoste", "Ralph Lauren", "Nike", "Comme des Garçons", "Ami Paris"]
 ITEM_TYPES = ["t-shirts", "pulls", "sweat-shirts", "joggings", "shorts", "jeans"]
 
-SIZES = []  # vide = accepte toutes les tailles
-ALLOWED_CONDITIONS = []  # vide = accepte tous états
+# Filtres (laisser vide = tout passe)
+SIZES = []
+ALLOWED_CONDITIONS = []
 
 PRICE_LIMITS = {
     ("Lacoste", "t-shirts"): 1000,
@@ -36,6 +37,7 @@ HEADERS = {
                   "Chrome/115.0.0.0 Safari/537.36"
 }
 
+# ⚠️ Remplace les valeurs ci-dessous par celles copiées depuis ton navigateur
 COOKIES = {
     "banners_ui_state": "SUCCESS",
     "domain_selected": "true",
@@ -63,7 +65,6 @@ def scrape_vinted():
             url = f"{VINTED_BASE}/catalog?search_text={brand}+{item_type}&order=newest_first"
             print(f"🔗 URL testée : {url}")
             try:
-                # Utilisation des cookies dans la requête
                 r = requests.get(url, headers=HEADERS, cookies=COOKIES, timeout=10)
 
                 print("=== Début du HTML extrait ===")
@@ -91,7 +92,7 @@ def scrape_vinted():
                             continue
                         price_text = price_tag.text.strip()
                         price = int(''.join(filter(str.isdigit, price_text)))
-                        
+
                         if price > get_price_limit(brand, item_type):
                             continue
 
@@ -138,4 +139,4 @@ if __name__ == "__main__":
     send_telegram_message("📲 Test manuel d'envoi Telegram")
     while True:
         scrape_vinted()
-        time.sleep(480)  # toutes les 8 minutes
+        time.sleep(480)
