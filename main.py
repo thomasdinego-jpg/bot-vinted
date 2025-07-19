@@ -14,7 +14,6 @@ VINTED_BASE = "https://www.vinted.fr"
 BRANDS = ["Lacoste", "Ralph Lauren", "Nike", "Comme des Garçons", "Ami Paris"]
 ITEM_TYPES = ["t-shirts", "pulls", "sweat-shirts", "joggings", "shorts", "jeans"]
 
-# Pour debug, on allège les filtres
 SIZES = []  # vide = accepte toutes les tailles
 ALLOWED_CONDITIONS = []  # vide = accepte tous états
 
@@ -35,6 +34,12 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
                   "Chrome/115.0.0.0 Safari/537.36"
+}
+
+COOKIES = {
+    "banners_ui_state": "SUCCESS",
+    "domain_selected": "true",
+    "v_uid": "275145894"
 }
 
 def get_price_limit(brand, item_type):
@@ -58,15 +63,14 @@ def scrape_vinted():
             url = f"{VINTED_BASE}/catalog?search_text={brand}+{item_type}&order=newest_first"
             print(f"🔗 URL testée : {url}")
             try:
-                r = requests.get(url, headers=HEADERS, timeout=10)
+                # Utilisation des cookies dans la requête
+                r = requests.get(url, headers=HEADERS, cookies=COOKIES, timeout=10)
 
-                # Au lieu d'écrire dans un fichier, afficher un extrait du HTML dans les logs
                 print("=== Début du HTML extrait ===")
-                print(r.text[:1500])  # affiche les 1500 premiers caractères du HTML
+                print(r.text[:1500])
                 print("=== Fin du HTML extrait ===")
 
                 soup = BeautifulSoup(r.text, 'html.parser')
-
                 items = soup.select('div.feed-grid__item')
                 print(f"📦 {len(items)} annonces trouvées pour {brand} - {item_type}")
 
