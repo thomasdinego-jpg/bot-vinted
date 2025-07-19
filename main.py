@@ -19,7 +19,7 @@ SIZES = []  # vide = accepte toutes les tailles
 ALLOWED_CONDITIONS = []  # vide = accepte tous états
 
 PRICE_LIMITS = {
-    ("Lacoste", "t-shirts"): 1000,  # prix max très élevé pour debug
+    ("Lacoste", "t-shirts"): 1000,
     ("Lacoste", "pulls"): 1000,
     ("Ralph Lauren", "t-shirts"): 1000,
     ("Ralph Lauren", "pulls"): 1000,
@@ -30,6 +30,12 @@ PRICE_LIMITS = {
 }
 
 sent_links = set()
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/115.0.0.0 Safari/537.36"
+}
 
 def get_price_limit(brand, item_type):
     return PRICE_LIMITS.get((brand, item_type), PRICE_LIMITS["default"])
@@ -52,14 +58,13 @@ def scrape_vinted():
             url = f"{VINTED_BASE}/catalog?search_text={brand}+{item_type}&order=newest_first"
             print(f"🔗 URL testée : {url}")
             try:
-                r = requests.get(url, timeout=10)
+                r = requests.get(url, headers=HEADERS, timeout=10)
                 soup = BeautifulSoup(r.text, 'html.parser')
 
                 # DEBUG: afficher un extrait du HTML pour vérifier la structure
                 html_excerpt = soup.prettify()[:1500]
                 print(f"HTML extrait pour {brand} {item_type}:\n{html_excerpt}\n{'='*60}")
 
-                # Sélecteur annonces (à ajuster si Vinted change)
                 items = soup.select('div.feed-grid__item')
                 print(f"📦 {len(items)} annonces trouvées pour {brand} - {item_type}")
 
@@ -81,7 +86,6 @@ def scrape_vinted():
                         price_text = price_tag.text.strip()
                         price = int(''.join(filter(str.isdigit, price_text)))
                         
-                        # Si on a des filtres actifs, on applique, sinon on passe
                         if price > get_price_limit(brand, item_type):
                             continue
 
@@ -95,7 +99,6 @@ def scrape_vinted():
                         if ALLOWED_CONDITIONS and condition not in ALLOWED_CONDITIONS:
                             continue
 
-                        # Si on arrive ici, annonce valide
                         found_valid = True
                         print("🟢 Annonce trouvée !")
                         print(f"🔗 {link}")
