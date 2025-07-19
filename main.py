@@ -31,17 +31,25 @@ PRICE_LIMITS = {
 
 sent_links = set()
 
+# ✅ Headers HTTP complets pour simuler un vrai navigateur
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/115.0.0.0 Safari/537.36"
+                  "Chrome/115.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Referer": "https://www.vinted.fr/",
+    "Connection": "keep-alive"
 }
 
-# ⚠️ Remplace les valeurs ci-dessous par celles copiées depuis ton navigateur
+# ✅ Cookies récupérés via l’inspecteur Chrome (à adapter en cas d’expiration)
 COOKIES = {
-    "banners_ui_state": "SUCCESS",
-    "domain_selected": "true",
-    "v_uid": "275145894"
+    "_cf_bm": "LUnzNbc8NtsKVFuGUCdcFthFHegleNAOo...",  # mets la vraie valeur complète ici
+    "_ps_did": "ta_valeur",
+    "_ps_fva": "1752958347962",
+    "_ps_lu": "https://www.vinted.fr/",
+    "_ps_r": "ta_valeur",
+    "_ps_slu": "https://www.vinted.fr/"
 }
 
 def get_price_limit(brand, item_type):
@@ -139,4 +147,4 @@ if __name__ == "__main__":
     send_telegram_message("📲 Test manuel d'envoi Telegram")
     while True:
         scrape_vinted()
-        time.sleep(480)
+        time.sleep(480)  # toutes les 8 minutes
