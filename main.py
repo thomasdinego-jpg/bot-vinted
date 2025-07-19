@@ -59,6 +59,13 @@ def scrape_vinted():
             print(f"🔗 URL testée : {url}")
             try:
                 r = requests.get(url, headers=HEADERS, timeout=10)
+
+                # === Bloc ajouté juste après la requête HTTP pour sauvegarder le HTML ===
+                with open("test_vinted.html", "w", encoding="utf-8") as f:
+                    f.write(r.text)
+                print("✅ HTML sauvegardé dans test_vinted.html")
+                # ========================================================================
+
                 soup = BeautifulSoup(r.text, 'html.parser')
 
                 # DEBUG: afficher un extrait du HTML pour vérifier la structure
