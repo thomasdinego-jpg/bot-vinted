@@ -5,18 +5,19 @@ import time
 from dotenv import load_dotenv
 from keep_alive import keep_alive
 
-# Charge les variables d’environnement
+# Charge les variables d’environnement depuis .env
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
+# Paramètres de scraping
 VINTED_BASE = "https://www.vinted.fr"
 BRANDS = ["Lacoste", "Ralph Lauren", "Nike", "Comme des Garçons", "Ami Paris"]
 ITEM_TYPES = ["t-shirts", "pulls", "sweat-shirts", "joggings", "shorts", "jeans"]
 
-# Filtres (laisser vide = tout passe)
-SIZES = []
-ALLOWED_CONDITIONS = []
+# Filtres
+SIZES = []  # vide = toutes tailles
+ALLOWED_CONDITIONS = []  # vide = tous états
 
 PRICE_LIMITS = {
     ("Lacoste", "t-shirts"): 1000,
@@ -31,7 +32,7 @@ PRICE_LIMITS = {
 
 sent_links = set()
 
-# ✅ Headers HTTP complets pour simuler un vrai navigateur
+# ✅ Headers pour simuler un vrai navigateur
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -42,14 +43,9 @@ HEADERS = {
     "Connection": "keep-alive"
 }
 
-# ✅ Cookies récupérés via l’inspecteur Chrome (à adapter en cas d’expiration)
+# ✅ Cookie à jour (⚠️ à remplacer souvent !)
 COOKIES = {
-    "_cf_bm": "LUnzNbc8NtsKVFuGUCdcFthFHegleNAOo...",  # mets la vraie valeur complète ici
-    "_ps_did": "ta_valeur",
-    "_ps_fva": "1752958347962",
-    "_ps_lu": "https://www.vinted.fr/",
-    "_ps_r": "ta_valeur",
-    "_ps_slu": "https://www.vinted.fr/"
+    "_cf_bm": ".Q-1753WvpguTkl6USUF0Fw889p1SkwJQkKWBeX4zvsK9GmF147508-1.0.1.1-VCGMS1blF5lvqZvlu5HLwLgu6Yv5VN4Ur.O4cwpzQRXsl8Qd6qAe71pvqL9uXJo1y..D82PmZtt_Rc3mQmdIYuw_G0IYhPajRFoVRu9JNzLEKxS7PueLTrVn3YFxZH3m"
 }
 
 def get_price_limit(brand, item_type):
@@ -73,10 +69,11 @@ def scrape_vinted():
             url = f"{VINTED_BASE}/catalog?search_text={brand}+{item_type}&order=newest_first"
             print(f"🔗 URL testée : {url}")
             try:
+                # Requête avec headers + cookies
                 r = requests.get(url, headers=HEADERS, cookies=COOKIES, timeout=10)
 
                 print("=== Début du HTML extrait ===")
-                print(r.text[:1500])
+                print(r.text[:1500])  # Debug : aperçu du HTML
                 print("=== Fin du HTML extrait ===")
 
                 soup = BeautifulSoup(r.text, 'html.parser')
@@ -91,7 +88,6 @@ def scrape_vinted():
                         if not a_tag:
                             continue
                         link = VINTED_BASE + a_tag['href'].split('?')[0]
-
                         if link in sent_links:
                             continue
 
@@ -100,7 +96,6 @@ def scrape_vinted():
                             continue
                         price_text = price_tag.text.strip()
                         price = int(''.join(filter(str.isdigit, price_text)))
-
                         if price > get_price_limit(brand, item_type):
                             continue
 
